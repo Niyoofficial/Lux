@@ -9,3 +9,5 @@
 #else
 	#error Lux only supports Windows!
 #endif // LUX_PLATFORM_WINDOWS
+
+#define BIT(x) (1 << x)

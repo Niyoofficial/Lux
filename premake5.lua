@@ -16,6 +16,9 @@ project "Lux"
 	location "Lux"
 	kind "sharedLib"
 	language "C++"
+
+	pchheader "lxpch.h"
+	pchsource "Lux/Source/lxpch.cpp"
 	
 	targetdir ("Binaries/" .. outputdir .. "/%{prj.name}")
 	objdir ("Intermediate/" .. outputdir .. "/%{prj.name}")
@@ -28,7 +31,8 @@ project "Lux"
 
 	includedirs
 	{
-		"Lux/Vendor/spdlog/include"
+		"%{prj.name}/Source",
+		"%{prj.name}/Vendor/spdlog/include"
 	}
 
 	filter "system:windows"
