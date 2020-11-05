@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lxpch.h"
 #include "Lux/Core.h"
 
 namespace Lux
