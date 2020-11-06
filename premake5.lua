@@ -12,6 +12,11 @@ workspace "Lux"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["GLFW"] = "%{wks.location}/Lux/Vendor/GLFW/include"
+
+include "Lux/Vendor/GLFW"
+
 project "Lux"
 	location "Lux"
 	kind "sharedLib"
@@ -29,10 +34,17 @@ project "Lux"
 		"%{prj.name}/Source/**.cpp"
 	}
 
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
+	}
+
 	includedirs
 	{
 		"%{prj.name}/Source",
-		"%{prj.name}/Vendor/spdlog/include"
+		"%{prj.name}/Vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
 	}
 
 	filter "system:windows"
@@ -80,7 +92,8 @@ project "Sandbox"
 	includedirs
 	{
 		"Lux/Vendor/spdlog/include",
-		"Lux/Source"
+		"Lux/Source",
+		"%{IncludeDir.GLFW}"
 	}
 
 	links

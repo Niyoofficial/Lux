@@ -7,7 +7,6 @@ namespace Lux
 	class LUX_API WindowResizeEvent : public Event
 	{
 	public:
-		WindowResizeEvent() = delete;
 		WindowResizeEvent(unsigned int width, unsigned int height)
 			: m_Width(width), m_Height(height) {}
 

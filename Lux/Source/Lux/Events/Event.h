@@ -32,6 +32,7 @@ namespace Lux
 
 	class LUX_API Event
 	{
+		friend class EventDispacher;
 	public:
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
@@ -47,7 +48,7 @@ namespace Lux
 		bool m_Handled = false;
 	};
 
-	class EventDispacher
+	class LUX_API EventDispacher
 	{
 	public:
 		template<typename T>
@@ -59,10 +60,12 @@ namespace Lux
 		template<typename T>
 		bool Dispatch(EventFn<T> fn)
 		{
-			if (m_Event.GetEventType() = T::GetStaticType())
+			if (m_Event.GetEventType() == T::GetStaticType())
 			{
 				m_Event.m_Handled = fn(*(T*)&m_Event);
+				return true;
 			}
+			return false;
 		}
 	private:
 		Event& m_Event;
