@@ -3,7 +3,7 @@
 #include "lxpch.h"
 
 #include "Lux/Core.h"
-#include "Lux/Events/Event.h"
+#include "Lux/Event.h"
 
 namespace Lux
 {
@@ -21,8 +21,6 @@ namespace Lux
 	class LUX_API Window
 	{
 	public:
-		using EventCallbackFn = std::function<void(Event&)>;
-
 		virtual ~Window() {}
 
 		virtual void OnUpdate() = 0;
@@ -30,10 +28,28 @@ namespace Lux
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
 
-		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool Enabled) = 0;
 		virtual bool IsVSync() const = 0;
 
 		static Window* Create(const WindowProps& Props = WindowProps());
+
+		struct WindowData
+		{
+			std::string Title;
+			unsigned int Width, Height;
+			bool VSyncEnabled;
+
+			EventDispatcher<int, int> WindowResizeCallback;
+			EventDispatcher<> WindowCloseCallback;
+			EventDispatcher<int> KeyPressedCallback;
+			EventDispatcher<int> KeyReleasedCallback;
+			EventDispatcher<int> KeyRepeatCallback;
+			EventDispatcher<int> MouseButtonPressedCallback;
+			EventDispatcher<int> MouseButtonReleasedCallback;
+			EventDispatcher<int, int> MouseScrolledCallback;
+			EventDispatcher<int, int> MouseMovedCallback;
+		};	
+
+		WindowData Data;
 	};
 }

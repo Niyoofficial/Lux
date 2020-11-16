@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Lux/Window.h"
+#include "Lux/Event.h"
 
 namespace Lux
 {
@@ -12,12 +13,11 @@ namespace Lux
 
 		void OnUpdate() override;
 
-		inline unsigned int GetWidth() const override { return m_Data.Width; }
-		inline unsigned int GetHeight() const override { return m_Data.Height; }
+		inline unsigned int GetWidth() const override { return Data.Width; }
+		inline unsigned int GetHeight() const override { return Data.Height; }
 
-		inline void SetEventCallback(const EventCallbackFn& Callback) override { m_Data.EventCallback = Callback; }
 		void SetVSync(bool Enabled) override;
-		inline bool IsVSync() const override { return m_Data.VSyncEnabled; }
+		inline bool IsVSync() const override { return Data.VSyncEnabled; }
 
 	private:
 		virtual void Init(const WindowProps& Props);
@@ -25,16 +25,5 @@ namespace Lux
 
 	private:
 		struct GLFWwindow* m_Window;
-
-		struct WindowData
-		{
-			std::string Title;
-			unsigned int Width, Height;
-			bool VSyncEnabled;
-
-			EventCallbackFn EventCallback;
-		};
-
-		WindowData m_Data;
 	};
 }
