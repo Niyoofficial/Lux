@@ -1,6 +1,11 @@
 #include "lxpch.h"
 #include <GLFW/glfw3.h>
 #include "WindowsWindow.h"
+#include "Lux/Events/ApplicationEvent.h"
+#include "Lux/Events/KeyEvent.h"
+#include "Lux/Events/MouseEvent.h"
+
+#include "glad/glad.h"
 
 namespace Lux
 {
@@ -23,11 +28,11 @@ namespace Lux
 
 	void WindowsWindow::Init(const WindowProps& Props)
 	{
-		Data.Title = Props.Title;
-		Data.Width = Props.Width;
-		Data.Height = Props.Height;
+		m_Data.Title = Props.Title;
+		m_Data.Width = Props.Width;
+		m_Data.Height = Props.Height;
 
-		LX_CORE_INFO("Creating Window {0} ({1}, {2})", Data.Title, Data.Width, Data.Height);
+		LX_CORE_INFO("Creating Window {0} ({1}, {2})", m_Data.Title, m_Data.Width, m_Data.Height);
 
 		if (!s_GLFWInitialized)
 		{
@@ -37,47 +42,49 @@ namespace Lux
 			s_GLFWInitialized = true;
 		}
 
-		m_Window = glfwCreateWindow(Data.Width, Data.Height, Data.Title.c_str(), nullptr, nullptr);
+		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
-		glfwSetWindowUserPointer(m_Window, &Data);
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		LX_CORE_ASSERT(status, "")
+		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* Window, int Width, int Height)
 			{
-				WindowData& Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
+				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
 
-				Data.Width = Width;
-				Data.Height = Height;
+				m_Data.Width = Width;
+				m_Data.Height = Height;
 
-				Data.WindowResizeCallback.Dispatch(Width, Height);
+				m_Data.EventCallback(WindowResizeEvent(Width, Height));
 			});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* Window)
 			{
-				WindowData& Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
+				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
 				
-				Data.WindowCloseCallback.Dispatch();
+				m_Data.EventCallback(WindowCloseEvent());
 			});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* Window, int Key, int ScanCode, int Action, int Mods)
 			{
-				WindowData& Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
+				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
 
 				switch (Action)
 				{
 				case GLFW_PRESS:
 				{
-					Data.KeyPressedCallback.Dispatch(Key);
+					m_Data.EventCallback(KeyPressedEvent(Key, 0));
 					break;
 				}
 				case GLFW_RELEASE:
 				{
-					Data.KeyReleasedCallback.Dispatch(Key);
+					m_Data.EventCallback(KeyReleasedEvent(Key));
 					break;
 				}
 				case GLFW_REPEAT:
 				{
-					Data.KeyRepeatCallback.Dispatch(Key);
+					m_Data.EventCallback(KeyPressedEvent(Key, 1));
 					break;
 				}
 				}
@@ -85,17 +92,17 @@ namespace Lux
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* Window, int Key, int Action, int Mods)
 			{
-				WindowData& Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
+				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
 				switch (Action)
 				{
 				case GLFW_PRESS:
 				{
-					Data.MouseButtonPressedCallback.Dispatch(Key);
+					m_Data.EventCallback(MouseButtonPressedEvent(Key));
 					break;
 				}
 				case GLFW_RELEASE:
 				{
-					Data.MouseButtonReleasedCallback.Dispatch(Key);
+					m_Data.EventCallback(MouseButtonReleasedEvent(Key));
 					break;
 				}
 				}
@@ -103,16 +110,16 @@ namespace Lux
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* Window, double xOffset, double yOffset)
 			{
-				WindowData& Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
+				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
 				
-				Data.MouseScrolledCallback.Dispatch(xOffset, yOffset);
+				m_Data.EventCallback(MouseScrolledEvent(xOffset, yOffset));
 			});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* Window, double xPos, double yPos)
 			{
-				WindowData& Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
+				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(Window));
 
-				Data.MouseMovedCallback.Dispatch(xPos, yPos);
+				m_Data.EventCallback(MouseMovedEvent(xPos, yPos));
 			});
 	}
 
@@ -128,7 +135,7 @@ namespace Lux
 			glfwSwapInterval(1);
 		else
 			glfwSwapInterval(0);
-		Data.VSyncEnabled = Enabled;
+		m_Data.VSyncEnabled = Enabled;
 	}
 
 	void WindowsWindow::ShutDown()
