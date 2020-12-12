@@ -14,13 +14,18 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/Lux/Vendor/GLFW/include"
+IncludeDir["Glad"] = "%{wks.location}/Lux/Vendor/Glad/include"
+IncludeDir["ImGui"] = "%{wks.location}/Lux/Vendor/ImGui"
 
 include "Lux/Vendor/GLFW"
+include "Lux/Vendor/Glad"
+include "Lux/Vendor/ImGui"
 
 project "Lux"
 	location "Lux"
 	kind "sharedLib"
 	language "C++"
+	staticruntime "Off"
 
 	pchheader "lxpch.h"
 	pchsource "Lux/Source/lxpch.cpp"
@@ -37,6 +42,8 @@ project "Lux"
 	links
 	{
 		"GLFW",
+		"Glad",
+		"ImGui",
 		"opengl32.lib"
 	}
 
@@ -44,41 +51,47 @@ project "Lux"
 	{
 		"%{prj.name}/Source",
 		"%{prj.name}/Vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.Glad}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 	defines
 	{
 		"LUX_PLATFORM_WINDOWS",
-		"LUX_BUILD_DLL"
+		"LUX_BUILD_DLL",
+		"GLFW_INCLUDE_NONE"
 	}
 
 	postbuildcommands
 	{
-		("{COPY} %{cfg.buildtarget.relpath} ../Binaries/" .. outputdir .. "/Sandbox")
+		("{COPY} %{cfg.buildtarget.relpath} \"../Binaries/" .. outputdir .. "/Sandbox/\"")
 	}
 
 	filter "configurations:Debug"
 		defines "LUX_DEBUG"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "LUX_RELEASE"
-		symbols "On"
+		runtime "Release"
+		optimize "On"
 
 	filter "configurations:Dist"
 		defines "LUX_DIST"
-		symbols "On"
+		runtime "Release"
+		optimize "On"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
+	staticruntime "Off"
 	
 	targetdir ("Binaries/" .. outputdir .. "/%{prj.name}")
 	objdir ("Intermediate/" .. outputdir .. "/%{prj.name}")
@@ -103,7 +116,6 @@ project "Sandbox"
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 	defines
@@ -113,12 +125,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "LUX_DEBUG"
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "LUX_RELEASE"
+		runtime "Release"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "LUX_DIST"
+		runtime "Release"
 		optimize "On"

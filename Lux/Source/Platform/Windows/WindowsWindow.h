@@ -19,6 +19,8 @@ namespace Lux
 		void SetVSync(bool Enabled) override;
 		inline bool IsVSync() const override { return m_Data.VSyncEnabled; }
 
+		inline virtual void* GetNativeWindow() override { return m_Window; }
+
 	private:
 		virtual void Init(const WindowProps& Props);
 		virtual void ShutDown();
