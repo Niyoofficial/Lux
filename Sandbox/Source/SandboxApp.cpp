@@ -2,6 +2,7 @@
 #include "Lux/Layer.h"
 #include "Lux/Events/Event.h"
 #include "Lux/Input.h"
+#include "Lux/KeyCodes.h"
 
 class ExampleLayer : public Lux::Layer
 {
@@ -11,13 +12,10 @@ public:
 
 	void OnUpdate() override
 	{
-		//LX_INFO("Update");
-		LX_TRACE("{0}, {1}", Lux::Input::GetMousePosition().first, Lux::Input::GetMousePosition().second);
 	}
 
 	void OnEvent(Lux::Event& e) override
 	{
-		//LX_INFO(e);
 	}
 };
 

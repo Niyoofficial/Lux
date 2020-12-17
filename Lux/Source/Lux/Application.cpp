@@ -25,7 +25,6 @@ namespace Lux
 	{
 		if (e.GetEventType() == Lux::EventType::WindowClose)
 			m_Running = false;
-		LX_CORE_TRACE(e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
 		{
