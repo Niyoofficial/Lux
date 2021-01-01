@@ -2,6 +2,8 @@
 
 #include "Lux/Window.h"
 
+#include "Lux/Renderer/RenderingContext.h"
+
 namespace Lux
 {
 	class LUX_API WindowsWindow : public Window
@@ -10,7 +12,7 @@ namespace Lux
 		WindowsWindow(const WindowProps& Props);
 		virtual ~WindowsWindow();
 
-		void OnUpdate() override;
+		void OnUpdate(float DeltaTime) override;
 
 		inline unsigned int GetWidth() const override { return m_Data.Width; }
 		inline unsigned int GetHeight() const override { return m_Data.Height; }
@@ -27,6 +29,7 @@ namespace Lux
 
 	private:
 		struct GLFWwindow* m_Window;
+		RenderingContext* m_Context;
 
 		struct WindowData
 		{

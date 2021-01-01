@@ -5,7 +5,6 @@ namespace Lux
 {
 	Lux::LayerStack::LayerStack()
 	{
-		m_InsertLayer = m_Layers.begin();
 	}
 
 	Lux::LayerStack::~LayerStack()
@@ -16,12 +15,15 @@ namespace Lux
 
 	void Lux::LayerStack::PushLayer(Layer* layer)
 	{
-		m_InsertLayer = m_Layers.emplace(m_InsertLayer, layer);
+		m_Layers.emplace(m_Layers.begin() + m_InsertLayerIndex, layer);
+		m_InsertLayerIndex++;
+		layer->OnAttach();
 	}
 
 	void Lux::LayerStack::PushOverlay(Layer* overlay)
 	{
 		m_Layers.emplace_back(overlay);
+		overlay->OnAttach();
 	}
 
 	void Lux::LayerStack::PopLayer(Layer* layer)
@@ -30,7 +32,8 @@ namespace Lux
 		if (it != m_Layers.end())
 		{
 			m_Layers.erase(it);
-			m_InsertLayer--;
+			m_InsertLayerIndex--;
+			layer->OnDetach();
 		}
 	}
 
@@ -38,6 +41,9 @@ namespace Lux
 	{
 		auto it = std::find(m_Layers.begin(), m_Layers.end(), overlay);
 		if (it != m_Layers.end())
+		{
 			m_Layers.erase(it);
+			overlay->OnDetach();
+		}
 	}
 }

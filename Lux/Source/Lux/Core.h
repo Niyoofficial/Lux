@@ -1,11 +1,15 @@
 #pragma once
 
 #ifdef LUX_PLATFORM_WINDOWS
+#if LUX_DYNAMIC_LINK
 	#ifdef LUX_BUILD_DLL
 		#define LUX_API __declspec(dllexport)
 	#else
 		#define LUX_API __declspec(dllimport)
 	#endif // LUX_BUILD_DLL
+#else 
+	#define LUX_API
+#endif
 #else
 	#error Lux only supports Windows!
 #endif // LUX_PLATFORM_WINDOWS

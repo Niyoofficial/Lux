@@ -16,16 +16,20 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "%{wks.location}/Lux/Vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/Lux/Vendor/Glad/include"
 IncludeDir["ImGui"] = "%{wks.location}/Lux/Vendor/ImGui"
+IncludeDir["glm"] = "%{wks.location}/Lux/Vendor/glm"
 
-include "Lux/Vendor/GLFW"
-include "Lux/Vendor/Glad"
-include "Lux/Vendor/ImGui"
+group "Dependencies"
+	include "Lux/Vendor/GLFW"
+	include "Lux/Vendor/Glad"
+	include "Lux/Vendor/ImGui"
+group ""
 
 project "Lux"
 	location "Lux"
-	kind "sharedLib"
+	kind "StaticLib"
+	cppdialect "C++17"
 	language "C++"
-	staticruntime "Off"
+	staticruntime "on"
 
 	pchheader "lxpch.h"
 	pchsource "Lux/Source/lxpch.cpp"
@@ -36,7 +40,14 @@ project "Lux"
 	files
 	{
 		"%{prj.name}/Source/**.h",
-		"%{prj.name}/Source/**.cpp"
+		"%{prj.name}/Source/**.cpp",
+		"%{prj.name}/Vendor/glm/glm/**.hpp",
+		"%{prj.name}/Vendor/glm/glm/**.inl"
+	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	links
@@ -53,45 +64,41 @@ project "Lux"
 		"%{prj.name}/Vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
 
-	defines
-	{
-		"LUX_PLATFORM_WINDOWS",
-		"LUX_BUILD_DLL",
-		"GLFW_INCLUDE_NONE"
-	}
-
-	postbuildcommands
-	{
-		("{COPY} %{cfg.buildtarget.relpath} \"../Binaries/" .. outputdir .. "/Sandbox/\"")
-	}
+		defines
+		{
+			"LUX_PLATFORM_WINDOWS",
+			"LUX_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
+		}
 
 	filter "configurations:Debug"
 		defines "LUX_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "LUX_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "LUX_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
+	cppdialect "C++17"
 	language "C++"
-	staticruntime "Off"
+	staticruntime "on"
 	
 	targetdir ("Binaries/" .. outputdir .. "/%{prj.name}")
 	objdir ("Intermediate/" .. outputdir .. "/%{prj.name}")
@@ -106,7 +113,8 @@ project "Sandbox"
 	{
 		"Lux/Vendor/spdlog/include",
 		"Lux/Source",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
@@ -115,7 +123,6 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
 
 	defines
@@ -126,14 +133,14 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "LUX_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "LUX_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "LUX_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"

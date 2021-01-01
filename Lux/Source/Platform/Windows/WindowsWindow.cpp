@@ -5,7 +5,7 @@
 #include "Lux/Events/KeyEvent.h"
 #include "Lux/Events/MouseEvent.h"
 
-#include "glad/glad.h"
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Lux
 {
@@ -43,9 +43,10 @@ namespace Lux
 		}
 
 		m_Window = glfwCreateWindow(m_Data.Width, m_Data.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		LX_CORE_ASSERT(status, "")
+		m_Context = new OpenGLContext(m_Window);
+
+		m_Context->Init();
+
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
@@ -128,21 +129,21 @@ namespace Lux
 			{
 				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
 				
-				m_Data.EventCallback(MouseScrolledEvent(xOffset, yOffset));
+				m_Data.EventCallback(MouseScrolledEvent(static_cast<float>(xOffset), static_cast<float>(yOffset)));
 			});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
 			{
 				WindowData& m_Data = *reinterpret_cast<WindowData*>(glfwGetWindowUserPointer(window));
 
-				m_Data.EventCallback(MouseMovedEvent(xPos, yPos));
+				m_Data.EventCallback(MouseMovedEvent(static_cast<float>(xPos), static_cast<float>(yPos)));
 			});
 	}
 
-	void WindowsWindow::OnUpdate()
+	void WindowsWindow::OnUpdate(float DeltaTime)
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetVSync(bool Enabled)

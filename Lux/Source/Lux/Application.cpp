@@ -1,8 +1,8 @@
 #include "lxpch.h"
 #include "Application.h"
 #include "Lux/Log.h"
-#include <glad/glad.h>
 #include "Events/ApplicationEvent.h"
+#include "Lux/Time.h"
 
 namespace Lux
 {
@@ -14,7 +14,10 @@ namespace Lux
 		LX_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
-		m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+		m_Window->SetEventCallback(LX_BIND_METHOD(Application::OnEvent));
+
+		m_ImGuiLayer = new ImGuiLayer;
+		PushOverlay(m_ImGuiLayer);
 	}
 
 	Application::~Application()
@@ -38,26 +41,32 @@ namespace Lux
 	{
 		while (m_Running)
 		{
-			glClearColor(1, 0, 1, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::SetClearColor(glm::vec4(0.1f, 0.1f, 0.1f, 1.f));
+			RenderCommand::Clear();
+
+			float delta = Time::GetTimeSeconds() - m_LastFrameTime;
+			m_LastFrameTime = Time::GetTimeSeconds();
 
 			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate();
+				layer->OnUpdate(delta);
 
-			m_Window->OnUpdate();
+			m_ImGuiLayer->Begin();
+			for (Layer* layer : m_LayerStack)
+				layer->OnImGuiRender();
+			m_ImGuiLayer->End();
+
+			m_Window->OnUpdate(delta);
 		}
 	}
 
 	void Application::PushLayer(Layer* layer)
 	{
 		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
 	}
 
 	void Application::PushOverlay(Layer* overlay)
 	{
 		m_LayerStack.PushOverlay(overlay);
-		overlay->OnAttach();
 	}
 
 	Application* CreateApplication();

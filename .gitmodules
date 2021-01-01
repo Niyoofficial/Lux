@@ -7,3 +7,6 @@
 [submodule "Lux/Vendor/ImGui"]
 	path = Lux/Vendor/ImGui
 	url = https://github.com/Niyoofficial/imgui
+[submodule "Lux/Vendor/glm"]
+	path = Lux/Vendor/glm
+	url = https://github.com/g-truc/glm

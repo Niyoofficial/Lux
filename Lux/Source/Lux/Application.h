@@ -4,6 +4,11 @@
 #include "Lux/Window.h"
 #include "Events/Event.h"
 #include "LayerStack.h"
+#include "ImGui/ImGuiLayer.h"
+#include "Renderer/Shader.h"
+#include "Renderer/Buffer.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/Renderer.h"
 
 namespace Lux
 {
@@ -23,8 +28,11 @@ namespace Lux
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+		float m_LastFrameTime = 0.f;
+
 	private:
 		static Application* s_Instance;
 	};
